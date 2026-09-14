@@ -54,8 +54,13 @@ This installs `ux-review`, `ux-laws-auditor`, and `ux-behavior-design` as plain 
 
 ## Requirements
 
-- Live capture needs a browser automation tool in the session — Playwright MCP or Chrome automation. Without one, pass screenshots.
+- Live capture needs a browser automation tool in the session — Playwright MCP or Chrome automation. Without one, pass screenshots. If another session holds the browser (`Browser is already in use`), the run falls back to screenshot-only mode and says so.
 - `gh` for PR targets.
+- After installing the plugin, **restart Claude Code** before the agents resolve by name; in the same session the orchestrator falls back to `general-purpose` agents reading the definitions, which produces the same reports.
+
+## Cost
+
+A full five-lens run on a real screen with source is heavy: roughly 150–250k tokens and 5–8 minutes per lens, in parallel. Narrow with aspects (`/ux-review-toolkit:ux-review /route laws a11y`) when you only need some of them.
 
 ## Layout
 

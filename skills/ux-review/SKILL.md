@@ -37,6 +37,8 @@ No target → ask for one. That is the only question this skill asks up front.
 
 The browser (Playwright MCP, or a Chrome automation tool) is a **single session**. Agents never receive browser tools; they get file paths. Skip this step in screenshot-only or code-only mode.
 
+If navigation fails with `Browser is already in use` (another session holds the profile), do not retry in a loop: tell the user which mode you are falling back to, use any screenshots they provide or that already exist for the target, and mark the missing evidence in `capture.md`. The user can release the browser and re-run for a live capture.
+
 Evidence dir: `<scratchpad>/ux-review/<slug>-<yyyymmdd-hhmm>/` where `<scratchpad>` is the session scratchpad directory. Never inside a repository.
 
 1. Log in per the project instructions if the route needs it.
@@ -47,7 +49,7 @@ Evidence dir: `<scratchpad>/ux-review/<slug>-<yyyymmdd-hhmm>/` where `<scratchpa
    - search/filter with a nonsense query → `empty-1440.png`
    - submit an empty form to trigger validation → `error-1440.png`
    - open the primary dialog/drawer → `dialog-1440.png`
-6. Locate the source: Grep the project for the route's page file and the main components it renders → list their paths.
+6. Locate the source by **following imports from the route's page file** (layout → page → feature components → their children), not by filename: a similarly named component often belongs to another feature (a `ContactSidebar.vue` that is a conversation card, not the contacts rail). List the files that actually render. Lenses may read one hop further — files the listed sources import — and should say when a finding comes from there.
 7. Write `capture.md`:
 
 ```
