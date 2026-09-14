@@ -1,0 +1,12 @@
+{
+  "name": "ux-review-toolkit",
+  "version": "0.1.0",
+  "description": "Multi-agent UX review: five specialist agents (cognitive laws, behavior and conversion, visual heuristics, accessibility, content and states) audit a screen, route, screenshot or PR in parallel and return one merged, severity-ranked report.",
+  "author": {
+    "name": "pitis"
+  },
+  "homepage": "https://github.com/pitis/ux-review-toolkit",
+  "repository": "https://github.com/pitis/ux-review-toolkit",
+  "license": "MIT",
+  "keywords": ["ux", "usability", "design-review", "accessibility", "heuristics", "audit", "agents"]
+}

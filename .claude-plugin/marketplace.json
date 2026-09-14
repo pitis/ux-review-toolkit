@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ux-review-toolkit",
+  "description": "Multi-agent UX review for Claude Code",
+  "owner": {
+    "name": "pitis"
+  },
+  "plugins": [
+    {
+      "name": "ux-review-toolkit",
+      "description": "Five specialist UX agents (cognitive laws, behavior, visual heuristics, accessibility, content) review a screen, route, screenshot or PR in parallel and return one merged, severity-ranked report.",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/pitis/ux-review-toolkit"
+    }
+  ]
+}
