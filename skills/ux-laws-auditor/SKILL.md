@@ -1,6 +1,6 @@
 ---
 name: ux-laws-auditor
-description: Use when asked to audit, review, or critique an existing screen, screenshot, wireframe, component, form, table, settings page, onboarding, or checkout for usability friction and cognitive load, and the reviewer needs each finding tied to a named UX law (Hick's, Fitts's, Jakob's, Miller's, Gestalt, Peak-End, Tesler's, Von Restorff, Doherty). Triggers on "UX audit", "usability review", "why does this feel clunky", "too many options", "hard to find", "confusing layout", "cognitive load". Not for designing behavior-change flows or persuasion mechanics (use ux-agent) or for implementing visual fixes (use impeccable).
+description: Use when asked to audit, review, or critique an existing screen, screenshot, wireframe, component, form, table, settings page, onboarding, or checkout for usability friction and cognitive load, and the reviewer needs each finding tied to a named UX law (Hick's, Fitts's, Jakob's, Miller's, Gestalt, Peak-End, Tesler's, Von Restorff, Doherty, Choice Overload, Cognitive Load, Mental Model). Triggers on "UX audit", "usability review", "why does this feel clunky", "too many options", "hard to find", "confusing layout", "cognitive load". Not for designing behavior-change flows or persuasion mechanics (use ux-agent) or for implementing visual fixes (use impeccable).
 ---
 
 # UX Laws Auditor & Behavioral Design Skill
@@ -28,6 +28,10 @@ Anything a static input cannot prove (hover tooltips, click targets, response ti
 - **Miller's Law:** Working memory holds 7 ± 2 items. *(Fix: Chunk information into digestible groups like phone formatting or 3-step onboarding).*
 - **Occam's Razor:** The simplest solution requiring the fewest assumptions is best. *(Fix: Remove redundant visual clutter, extra form fields, and superfluous steps).*
 - **Recognition over Recall:** Users identify options far more easily than they retrieve them from memory. Icon-only controls, unlabeled glyphs, and hidden menus force recall. *(Fix: Labels or persistent tooltips, visible options, recently-used items).*
+- **Choice Overload:** Too many comparable options make users defer, pick at random, or leave — the cost is abandonment, not only slower decisions (Hick's). *(Fix: Curate to a short list, recommend one, let users compare side by side instead of across screens).*
+- **Cognitive Load:** Mental effort is intrinsic (the task itself) or extraneous (what the interface adds). Only extraneous load is the design's fault. *(Fix: Remove decoration, jargon, and needless decisions; never cut information the task actually needs).*
+- **Chunking:** Grouping related items into meaningful units lets users scan and remember them. *(Fix: Section long forms and settings, group table columns, format long numbers and codes).*
+- **Working Memory:** Users hold only a few items briefly while they act. A value seen on one screen and needed on the next is a memory task. *(Fix: Keep the needed data visible at the point of use; carry selections across steps; never make users copy between screens).*
 
 ### 2. Movement & Target Acquisition
 - **Fitts's Law:** Time to acquire a target depends on target distance and size. *(Fix: touch targets at least 44×44px; on desktop pointer, at least 24px hit area and whole-row/whole-cell click targets; screen edges and corners are effectively infinite targets — do not inset primary rails/controls away from them).*
@@ -37,17 +41,23 @@ Anything a static input cannot prove (hover tooltips, click targets, response ti
 ### 3. Visual Perception (Gestalt Principles)
 - **Law of Proximity:** Elements near each other are perceived as a unified group. *(Fix: Position form labels adjacent to inputs; separate content blocks with clear white space).*
 - **Law of Similarity:** Visually similar elements are perceived to share a common function. *(Fix: Standardize button hierarchies and clickable link styles across screens; a disabled control must not look like an enabled secondary one).*
+- **Law of Common Region:** Elements sharing a clearly bounded area are perceived as a group. *(Fix: A border or background behind related controls; a toolbar's actions must sit inside the region they act on, not beside it).*
 - **Uniform Connectedness:** Visually connected elements are perceived as more related than non-connected ones. *(Fix: Enclose related settings in cards/containers or use step connectors).*
 - **Law of Prägnanz:** The brain interprets complex visual shapes in their simplest possible form. *(Fix: Avoid visual noise; rely on clean geometric layouts).*
 - **Aesthetic-Usability Effect:** Users perceive attractive interfaces as easier to use and forgive minor issues in them. *(Fix: Consistent spacing, alignment, and type scale; unfinished-looking placeholders and misaligned headers erode trust before a single click).*
+- **Selective Attention:** Users focus on what serves their current goal and filter out the rest, including anything that looks like an ad (banner blindness). *(Fix: Put critical notices inline where the task happens, not in banner-shaped boxes; never style a required step like promotion).*
 
 ### 4. Memory & User Behavior
 - **Jakob's Law:** Users spend most time on other sites, expecting your product to work like standard conventions. *(Fix: Stick to standard mental models like top-right cart, top-center search; a funnel icon means filter, a magnifier means search).*
+- **Mental Model:** Users predict behavior from their own model of the system, built from the domain and past use. When the interface's structure differs (a "save" that also publishes, a delete that only hides), they err confidently. *(Fix: Name and group things the way the audience does; make surprising consequences visible before the action).*
+- **Paradox of the Active User:** Users never read manuals; they start using the product right away and learn only what the task in front of them forces. *(Fix: Teach in context at the moment of need; no feature should depend on a tour or docs being read first).*
+- **Cognitive Bias:** Systematic shortcuts in judgment — anchoring, default bias, framing — shape choices whether the design intends it or not. Cite the specific bias, never "cognitive bias" alone. *(Fix: Make defaults the option most users should pick; show the reference point a price or number is judged against; flag defaults that quietly work against the user).*
 - **Von Restorff Effect:** Distinct items in a set are most memorable. *(Fix: Apply high-contrast accent colors to primary actions over secondary controls; the single accented element must be the action the user can take now).*
 - **Serial Position Effect:** Users best recall the first (Primacy) and last (Recency) items in a sequence. *(Fix: Place primary navigation items at far ends of nav bars).*
 - **Peak-End Rule:** Experiences are judged by their peak intensity moment and final state. *(Fix: Deliver delightful completion micro-interactions; handle errors gracefully; an empty state with a next step, never a blank table).*
 - **Zeigarnik Effect:** Incomplete tasks stay top-of-mind and motivate completion. *(Fix: Display profile completion percentages or step progress indicators).*
 - **Goal-Gradient Effect:** Motivation rises as users get closer to a goal. *(Fix: Show progress that is already partly filled, make each step's completion visible, make the last step the lightest).*
+- **Flow:** Deep focus happens when challenge matches skill and feedback is immediate; interruptions break it and cost minutes to recover. *(Fix: No modals or toasts mid-task that demand action; keep feedback inline; let experts skip what novices need).*
 
 ### 5. Systems & Process Engineering
 - **Tesler's Law (Conservation of Complexity):** Inherent complexity cannot be eliminated, only shifted between user and system. *(Fix: Have system absorb complexity via auto-complete or ZIP lookup; a single-record create path must not be routed through bulk import).*
@@ -72,7 +82,7 @@ Anything a static input cannot prove (hover tooltips, click targets, response ti
 When a user provides a UI description, screenshot, wireframe, code, or interaction flow:
 
 1. **Inventory:** State what was audited — the input type, which state it shows, and the element inventory.
-2. **Friction Analysis:** Walk the principles above against the inventory. A law is cited only when it explains the finding; a finding with no law that fits goes under *Other observations* — it is never dropped and never forced into the nearest law. Flow-based laws (Peak-End, Zeigarnik, Goal-Gradient, Doherty, Postel's) are marked "not assessable from a single screen" when the input is one static screen.
+2. **Friction Analysis:** Walk the principles above against the inventory. A law is cited only when it explains the finding; a finding with no law that fits goes under *Other observations* — it is never dropped and never forced into the nearest law. Flow-based laws (Peak-End, Zeigarnik, Goal-Gradient, Flow, Working Memory across steps, Doherty, Postel's) are marked "not assessable from a single screen" when the input is one static screen.
 3. **Impact Diagnosis:** Clearly explain *why* the design flaw increases cognitive load, physical effort, or drop-off rates, for the audience the caller named.
 4. **Prioritized Recommendations:** Concrete, step-by-step UI/UX design fixes, ranked by the severity rubric.
 5. **Strengths:** What already works, with the law it satisfies.
