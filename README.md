@@ -15,9 +15,9 @@ The orchestrator captures evidence **once** (screenshots at 1440 and 1920, the a
 
 | Lens | Agent | Asks | Cites |
 |---|---|---|---|
-| `laws` | `ux-laws-reviewer` | Which cognitive law does this element break? | Hick's, Fitts's, Jakob's, Miller's, Gestalt, Tesler's, Peak-End, Von Restorff, Doherty, Visibility of System Status, … |
+| `laws` | `ux-laws-reviewer` | Which cognitive law does this element break? | Hick's, Fitts's, Jakob's, Miller's, Gestalt, Tesler's, Peak-End, Von Restorff, Doherty, Choice Overload, Cognitive Load, Mental Model, Visibility of System Status, … |
 | `behavior` | `ux-behavior-reviewer` | Where does the screen lose the user on the way to its target action? | Funnel stage (Cue → Reaction → Evaluation → Ability → Timing → Experience) + behavior-design pattern |
-| `visual` | `ux-visual-reviewer` | How does it score on the ten usability heuristics; is the hierarchy right? | Nielsen H1–H10 scored 0–4, hierarchy, consistency, template tells |
+| `visual` | `ux-visual-reviewer` | How does it score on the ten usability heuristics; is the hierarchy right? | Nielsen H1–H10 scored 0–4, Shneiderman closure and user control, hierarchy, consistency, template tells |
 | `a11y` | `ux-a11y-reviewer` | Names, roles, landmarks, contrast, targets, keyboard, focus? | WCAG 2.2 success criteria |
 | `content` | `ux-content-reviewer` | Does every string, state, and locale say the right thing? | Copy rules, state coverage, missing i18n keys, truncation risk |
 

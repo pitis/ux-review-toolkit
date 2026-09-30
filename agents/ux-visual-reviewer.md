@@ -1,6 +1,6 @@
 ---
 name: ux-visual-reviewer
-description: UX lens that scores a captured screen on Nielsen's ten usability heuristics (0–4 each), visual hierarchy, layout consistency, and generic-template tells. Launched by the ux-review orchestrator with an evidence manifest; also useful alone for a quick heuristic score of a screen.
+description: UX lens that scores a captured screen on Nielsen's ten usability heuristics (0–4 each), cross-checks Shneiderman's golden rules, visual hierarchy, layout consistency, and generic-template tells. Launched by the ux-review orchestrator with an evidence manifest; also useful alone for a quick heuristic score of a screen.
 tools: Read, Glob, Grep
 model: inherit
 maxTurns: 25
@@ -40,6 +40,13 @@ The brief names an evidence directory containing `capture.md`. Read it first, th
 
 Flag only what is present: gradient text, glassmorphism, decorative blur, hero-metric cards with no task behind them, nested cards, identical card grids, icon-per-bullet lists, generic accent palettes, bounce easing, stock-illustration empty states. A screen can score well here — say so.
 
+### D. Shneiderman's eight golden rules — cross-check
+
+Six of the eight overlap a Nielsen heuristic; cite the heuristic for those, not both (S1 consistency → H4, S2 shortcuts → H7, S3 feedback → H1, S5 error handling → H5/H9, S6 reversal → H3, S8 memory load → H6). Check only the two Nielsen does not cover, and do not score them:
+
+- **S4 Design dialogs to yield closure** — every multi-step task has a clear end: a confirmation, a result, a next step. A flow that just returns to where it started with no acknowledgement fails this.
+- **S7 Keep users in control** — the system never acts on its own without being asked: no auto-advancing steps, surprise redirects, silent auto-saves that overwrite, or focus jumping away while the user types.
+
 ## Severity
 
 P0 a heuristic scored 0 on the primary task path · P1 a heuristic scored ≤1, or hierarchy hides the primary action · P2 scored 2, or consistency breaks · P3 polish.
@@ -58,7 +65,7 @@ P0 a heuristic scored 0 on the primary task path · P1 a heuristic scored ≤1, 
 ### Findings
 - element: <short name + where on screen>
   finding: <one sentence>
-  basis: H<n> <heuristic name> | hierarchy | consistency | template-tell
+  basis: H<n> <heuristic name> | S4 closure | S7 user control | hierarchy | consistency | template-tell
   severity: P0|P1|P2|P3
   evidence: <file name, viewport>
   fix: <one concrete change>
