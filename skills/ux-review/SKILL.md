@@ -123,6 +123,8 @@ Heuristic scores from the visual lens (if run): <table>
 
 Evidence (screenshots, snapshots, report) stays in the scratchpad. Never commit it to a repository.
 
+To share the result as a page (open/fixed tabs, annotated screenshots, before/after pairs), hand the evidence dir to the `ux-report` skill.
+
 ## 7. `--comment` (PR targets only)
 
 `gh pr comment <n> --body-file <report summary>` with sections *Summary*, *Findings*, *Action plan*. Only when the flag was given.
