@@ -251,7 +251,7 @@ if(D.measures&&(D.measures.rows||[]).length){
 
 function setup(kind, items){
   const fixed=kind==='fixed';
-  items.forEach((f,i)=>f._i=i);
+  items.forEach((f,i)=>{f._i=i; f.sev=order[f.sev]!==undefined?f.sev:(fixed?null:'P3');});
   if(!fixed) items.sort((a,b)=>order[a.sev]-order[b.sev]||lensCount(b)-lensCount(a)||a._i-b._i);
   items.forEach((f,i)=>{f.n=i+1; f.shot=f.pin?.shot||null;});
   const byKey=Object.fromEntries(items.map(f=>[f.key,f]));
@@ -334,7 +334,7 @@ $id('tn-open').textContent=nOpen; $id('tn-fixed').textContent=nFixed;
 const counts=[];
 if(nOpen||!nFixed) counts.push({value:nOpen,label:'Open issues',tone:nOpen?(D.open.some(f=>f.sev==='P0')?'P0':'P1'):'OK'});
 if(nFixed) counts.push({value:nFixed,label:'Fixed',tone:'OK'});
-counts.push(...(D.stats||[]));
+counts.push(...(D.stats||[]).map(c=>({...c,tone:['OK','P0','P1','P2','P3'].includes(c.tone)?c.tone:'P3'})));
 $id('counts').innerHTML=counts.map(c=>`<div class="count c-${esc(c.tone||'P3')}"><b>${esc(c.value)}</b><span>${esc(c.label)}</span></div>`).join('');
 
 // before / after pairs, grouped

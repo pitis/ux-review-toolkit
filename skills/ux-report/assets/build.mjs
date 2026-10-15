@@ -23,6 +23,8 @@ const checkShot = (k, where) => {
   if (!existsSync(file)) errors.push(`${where}: image ${srcOf(k)} not found in ${dir}`)
 }
 
+for (const [i, st] of (data.stats || []).entries())
+  if (st.tone && !['OK', 'P0', 'P1', 'P2', 'P3'].includes(st.tone)) errors.push(`stats[${i}]: tone must be OK or P0–P3`)
 const keys = new Set()
 for (const kind of ['open', 'fixed']) {
   for (const [i, f] of (data[kind] || []).entries()) {
@@ -34,7 +36,10 @@ for (const kind of ['open', 'fixed']) {
     if (kind === 'open') {
       if (!['P0', 'P1', 'P2', 'P3'].includes(f.sev)) errors.push(`${where}: sev must be P0–P3`)
       if (!f.fix) errors.push(`${where}: missing fix`)
-    } else if (!f.how) errors.push(`${where}: missing how`)
+    } else {
+      if (!f.how) errors.push(`${where}: missing how`)
+      if (f.sev && !['P0', 'P1', 'P2', 'P3'].includes(f.sev)) errors.push(`${where}: sev must be P0–P3`)
+    }
     if (f.pin) {
       checkShot(f.pin.shot, where)
       for (const axis of ['x', 'y'])
