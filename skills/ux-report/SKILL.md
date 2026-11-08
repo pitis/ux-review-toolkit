@@ -45,11 +45,12 @@ Work dir: `<scratchpad>/ux-report/<slug>/` with `shots/` inside. Never inside a 
 
 Each finding may carry `pin: { shot, x, y }`, x and y in percent of the image. Open findings pin to the current (before) shot, fixed findings to the after shot, on the element the finding is about.
 
-With a live browser, measure, don't guess. On the page as captured, run for each element:
+With a live browser, measure, don't guess. On the page as captured, run for each element. It measures the element's content (its text and child elements), so a full-width line of text pins on its words, not on the empty middle of the line; inputs, images and empty elements use their own box.
 
 ```js
 // full-page screenshot
-(sel) => { const r = document.querySelector(sel).getBoundingClientRect(), d = document.documentElement;
+(sel) => { const el = document.querySelector(sel), rg = document.createRange(), d = document.documentElement;
+  rg.selectNodeContents(el); const t = rg.getBoundingClientRect(), r = t.width ? t : el.getBoundingClientRect();
   return { x: +((r.left + r.width / 2 + scrollX) / d.scrollWidth * 100).toFixed(2),
            y: +((r.top + r.height / 2 + scrollY) / d.scrollHeight * 100).toFixed(2) } }
 // viewport screenshot: divide by innerWidth / innerHeight and drop scrollX / scrollY
