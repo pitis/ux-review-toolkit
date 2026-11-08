@@ -35,6 +35,15 @@ Findings from all lenses share one shape (`element / finding / basis / severity 
 
 Evidence and the report land in the session scratchpad, never in a repository.
 
+## Publish as a page
+
+```
+/ux-review-toolkit:ux-report /checkout
+/ux-review-toolkit:ux-report /settings --update https://claude.ai/artifact/…
+```
+
+Turns a review into a published artifact: **Open** and **Fixed** tabs, numbered severity dots on the screenshots, cards that name the UX law each issue breaks, filters by severity and page, and before/after pairs for every visible fix. It takes the reviewed project's own design — colours, fonts, radius from its CSS tokens, Tailwind/UI-kit theme or the running app — so each report looks like the product it reviews. The page is a fixed template (`skills/ux-report/assets/template.html`); a run only writes `data.json` and the screenshots, and `--update` adds another page to an existing report.
+
 ## Install
 
 **Claude Code plugin** (agents + command):
@@ -50,12 +59,13 @@ claude plugin install ux-review-toolkit
 npx skills add pitis/ux-review-toolkit
 ```
 
-This installs `ux-review`, `ux-laws-auditor`, and `ux-behavior-design` as plain skills. Without the plugin's agents, `ux-review` runs the five lenses sequentially in one context instead of in parallel.
+This installs `ux-review`, `ux-report`, `ux-laws-auditor`, and `ux-behavior-design` as plain skills. Without the plugin's agents, `ux-review` runs the five lenses sequentially in one context instead of in parallel.
 
 ## Requirements
 
 - Live capture needs a browser automation tool in the session — Playwright MCP or Chrome automation. Without one, pass screenshots. If another session holds the browser (`Browser is already in use`), the run falls back to screenshot-only mode and says so.
 - `gh` for PR targets.
+- `ux-report` needs Node and a Claude Code session with Artifacts, which it publishes to.
 - After installing the plugin, **restart Claude Code** before the agents resolve by name; in the same session the orchestrator falls back to `general-purpose` agents reading the definitions, which produces the same reports.
 
 ## Cost
@@ -68,6 +78,8 @@ A full five-lens run on a real screen with source is heavy: roughly 150–250k t
 .claude-plugin/plugin.json        plugin manifest
 .claude-plugin/marketplace.json   lets the repo be added as a marketplace
 skills/ux-review/                 orchestrator
+skills/ux-report/                 publishes a review as a tabbed before/after artifact
+                                  (test the build: node --test skills/ux-report/assets/build.test.mjs)
 skills/ux-laws-auditor/           law catalogue + audit protocol
 skills/ux-behavior-design/        behavior-design reference (roadmap.sh/ux-design distillation)
 agents/ux-*-reviewer.md           the five lenses

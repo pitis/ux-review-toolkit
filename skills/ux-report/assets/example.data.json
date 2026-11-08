@@ -1,0 +1,146 @@
+{
+  "title": "Acme Checkout Review",
+  "eyebrow": "UX review and fixes · 15 Oct 2026",
+  "theme": {
+    "source": "app/assets/css/main.css @theme + computed styles of /checkout",
+    "light": {
+      "bg": "#FAFAF9",
+      "surface": "#FFFFFF",
+      "surface2": "#F4F4F5",
+      "ink": "#18181B",
+      "muted": "#52525B",
+      "line": "#E4E4E7",
+      "accent": "#6D28D9",
+      "radius": "8px"
+    },
+    "dark": {
+      "bg": "#09090B",
+      "surface": "#18181B",
+      "surface2": "#27272A",
+      "ink": "#FAFAFA",
+      "muted": "#A1A1AA",
+      "line": "#27272A",
+      "accent": "#A78BFA"
+    },
+    "fonts": {
+      "display": "\"Inter\", system-ui, sans-serif",
+      "body": "\"Inter\", system-ui, sans-serif",
+      "stylesheet": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    }
+  },
+  "meta": [
+    "PR #12 · fix/checkout-ux @ 1a2b3c4",
+    "Local stack on app.localhost",
+    "5 lenses: laws · behavior · visual · a11y · content",
+    {
+      "label": "Previous review",
+      "href": "https://claude.ai/artifact/EXAMPLE"
+    }
+  ],
+  "summary": "Two lists: what is still open on the checkout and what PR #12 already fixed. The main bottleneck was the payment step, where errors cleared the form.",
+  "stats": [
+    {
+      "value": "18/18",
+      "label": "E2E tests pass",
+      "tone": "OK"
+    }
+  ],
+  "measures": {
+    "title": "Measured in the running app",
+    "columns": [
+      "Check",
+      "Before",
+      "After"
+    ],
+    "rows": [
+      {
+        "check": "Pay button contrast",
+        "before": "~3.9:1",
+        "after": "5.1:1",
+        "bad": true
+      },
+      {
+        "check": "Focus after an error",
+        "before": "Page body",
+        "after": "First invalid field",
+        "bad": true
+      }
+    ],
+    "note": "“Before” contrast was the reviewers' estimate; “after” was computed from the rendered colours."
+  },
+  "shots": {
+    "pay": {
+      "label": "Payment · before"
+    },
+    "pay-after": {
+      "label": "Payment · after"
+    },
+    "cart-after": {
+      "label": "Cart · after"
+    }
+  },
+  "open": [
+    {
+      "key": "cart-coupon",
+      "sev": "P2",
+      "group": "Cart",
+      "screen": "Coupon field",
+      "title": "Coupon field is open by default and pulls people away",
+      "finding": "An empty, focused coupon field invites people to leave and search for codes.",
+      "fix": "Collapse it behind a “Have a code?” link.",
+      "laws": [
+        "Hick's law",
+        "Goal-gradient effect"
+      ],
+      "lenses": [
+        "behavior",
+        "laws"
+      ],
+      "basis": "Behavior funnel: Ability",
+      "who": "Your call",
+      "pin": {
+        "shot": "cart-after",
+        "x": 70,
+        "y": 62
+      }
+    }
+  ],
+  "fixed": [
+    {
+      "key": "pay-clear",
+      "sev": "P1",
+      "group": "Payment",
+      "screen": "Card form",
+      "title": "A declined card cleared the whole form",
+      "how": "Only the card number clears; the error says what to change and focus moves to the field.",
+      "laws": [
+        "Peak-End rule",
+        "Visibility of system status"
+      ],
+      "lenses": 4,
+      "test": "E2E test",
+      "pin": {
+        "shot": "pay-after",
+        "x": 40,
+        "y": 45
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "group": "Payment",
+      "title": "Declined card",
+      "before": "pay",
+      "after": "pay-after",
+      "note": "Empty form and a red banner → the card field alone, with the reason next to it."
+    }
+  ],
+  "verified": [
+    "format · lint · typecheck",
+    "18/18 E2E on the local stack",
+    "Contrast measured in light and dark"
+  ],
+  "unverifiable": [
+    "Real screen-reader runs; focus was checked in the accessibility tree only"
+  ]
+}
