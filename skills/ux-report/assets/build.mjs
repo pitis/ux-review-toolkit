@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Usage: node build.mjs <report dir>
 // Reads <dir>/data.json, checks it against <dir>/shots/, writes <dir>/index.html from template.html.
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -17,11 +17,17 @@ const errors = []
 const warnings = []
 const shots = data.shots || {}
 const srcOf = (k) => shots[k]?.src || `shots/${k}.jpg`
-const checkShot = (k, where) => {
+const used = new Map() // shot key -> first place that uses it; each image is checked and published once
+const useShot = (k, where) => {
   if (!shots[k]) warnings.push(`${where}: shot "${k}" has no entry in "shots" (label falls back to the key)`)
-  const file = join(dir, srcOf(k))
-  if (!existsSync(file)) errors.push(`${where}: image ${srcOf(k)} not found in ${dir}`)
+  if (!used.has(k)) used.set(k, where)
 }
+
+// The page maps over these; a string passes JSON but stops the page script.
+const lists = { meta: data.meta, verified: data.verified, unverifiable: data.unverifiable, 'measures.rows': data.measures?.rows, 'measures.columns': data.measures?.columns }
+for (const [k, v] of Object.entries(lists)) if (v != null && !Array.isArray(v)) errors.push(`${k}: must be an array`)
+for (const m of Array.isArray(data.meta) ? data.meta : [])
+  if (typeof m !== 'string' && !/^https?:\/\//.test(m?.href)) errors.push(`meta "${m?.label}": href must be an http(s) URL`)
 
 for (const [i, st] of (data.stats || []).entries())
   if (st.tone && !['OK', 'P0', 'P1', 'P2', 'P3'].includes(st.tone)) errors.push(`stats[${i}]: tone must be OK or P0–P3`)
@@ -41,38 +47,48 @@ for (const kind of ['open', 'fixed']) {
       if (f.sev && !['P0', 'P1', 'P2', 'P3'].includes(f.sev)) errors.push(`${where}: sev must be P0–P3`)
     }
     if (f.pin) {
-      checkShot(f.pin.shot, where)
+      useShot(f.pin.shot, where)
       for (const axis of ['x', 'y'])
-        if (typeof f.pin[axis] !== 'number' || f.pin[axis] < -10 || f.pin[axis] > 110)
+        if (typeof f.pin[axis] !== 'number' || f.pin[axis] < 0 || f.pin[axis] > 100)
           errors.push(`${where}: pin.${axis} must be a percentage (0–100)`)
     }
   }
 }
 for (const [i, p] of (data.pairs || []).entries()) {
-  checkShot(p.before, `pairs[${i}] before`)
-  checkShot(p.after, `pairs[${i}] after`)
+  useShot(p.before, `pairs[${i}] before`)
+  useShot(p.after, `pairs[${i}] after`)
 }
-for (const k of Object.keys(shots)) if (!existsSync(join(dir, srcOf(k)))) errors.push(`shots.${k}: ${srcOf(k)} not found`)
+for (const k of Object.keys(shots)) if (!used.has(k)) used.set(k, `shots.${k}`)
+for (const [k, where] of used) {
+  const src = srcOf(k)
+  // Plain files under shots/ only: the path is published as-is and used in a relative <img src>.
+  if (!/^shots\/[\w.-]+\.(jpe?g|png|webp)$/i.test(src)) errors.push(`${where}: image path "${src}" must be shots/<name>.jpg, .png or .webp`)
+  else if (!existsSync(join(dir, src))) errors.push(`${where}: image ${src} not found in ${dir}`)
+}
 
 // Project theme: tokens from the reviewed project's own design system, layered over the template's neutral defaults.
 const TOKENS = ['bg', 'surface', 'surface-2', 'ink', 'muted', 'line', 'accent', 'accent-soft', 'heading',
   'p0', 'p0-bg', 'p1', 'p1-bg', 'p2', 'p2-bg', 'p3', 'p3-bg', 'ok', 'ok-bg', 'shot-bg', 'shadow', 'radius']
 const kebab = (k) => k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase().replace(/^surface-?2$/, 'surface-2')
 const theme = data.theme || {}
+const COLOR = /^(#[0-9a-f]{3,8}|(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\(.+\)|[a-z]+)$/i
 function tokens(mode, where) {
   const out = {}
   for (const [k, v] of Object.entries(mode || {})) {
-    const name = kebab(k)
+    const name = kebab(k), val = String(v).trim(), isColor = name !== 'radius' && name !== 'shadow'
     if (!TOKENS.includes(name)) { warnings.push(`${where}.${k}: unknown token (known: ${TOKENS.join(', ')})`); continue }
-    if (/[;{}<>]/.test(String(v))) { errors.push(`${where}.${k}: value must be a plain CSS value`); continue }
-    out[name] = String(v)
+    if (/[;{}<>]|\/\*/.test(val)) { errors.push(`${where}.${k}: value must be a plain CSS value`); continue }
+    if (name === 'radius' && !/^(0|\d*\.?\d+(px|rem|em|%))$/.test(val)) { errors.push(`${where}.${k}: "${val}" must be a length like 8px`); continue }
+    if (isColor && !COLOR.test(val)) { errors.push(`${where}.${k}: "${val}" is not a CSS colour; resolve var() and channel triplets like "222 47% 11%" to a full colour`); continue }
+    if (isColor && !val.startsWith('#')) warnings.push(`${where}.${k}: not hex, so its contrast is not checked`)
+    out[name] = val
   }
   return out
 }
 const light = tokens(theme.light, 'theme.light')
 const dark = theme.dark ? tokens(theme.dark, 'theme.dark') : null
 const fonts = theme.fonts || {}
-for (const f of ['display', 'body', 'mono']) if (fonts[f] && /[;{}<>]/.test(fonts[f])) errors.push(`theme.fonts.${f}: must be a font-family list`)
+for (const f of ['display', 'body']) if (fonts[f] && /[;{}<>]/.test(fonts[f])) errors.push(`theme.fonts.${f}: must be a font-family list`)
 if (fonts.stylesheet && !/^https:\/\/fonts\.googleapis\.com\//.test(fonts.stylesheet))
   errors.push('theme.fonts.stylesheet: only Google Fonts stylesheets load in an artifact; use the closest Google font or a system stack')
 
@@ -94,7 +110,7 @@ for (const [label, t] of [['light', light], ['dark', dark]]) {
 
 const decl = (t) => Object.entries(t).map(([k, v]) => `--${k}:${v};`).join('')
 const derived = (t) => (t['accent-soft'] ? '' : (t.accent ? '--accent-soft:color-mix(in srgb,var(--accent) 14%,var(--surface));' : '')) + (t.heading || !t.ink ? '' : '--heading:var(--ink);')
-const fontDecl = ['display', 'body', 'mono'].filter((f) => fonts[f]).map((f) => `--${f}:${fonts[f]};`).join('')
+const fontDecl = ['display', 'body'].filter((f) => fonts[f]).map((f) => `--${f}:${fonts[f]};`).join('')
 let themeCss = ''
 if (Object.keys(light).length || fontDecl) themeCss += `:root{${decl(light)}${derived(light)}${fontDecl}}`
 if (dark) {
@@ -110,6 +126,7 @@ if (!data.theme) warnings.push('no "theme": the report uses neutral defaults ins
 for (const w of warnings) console.warn('warn:', w)
 if (errors.length) {
   for (const e of errors) console.error('error:', e)
+  rmSync(join(dir, 'index.html'), { force: true }) // so the last good build can't be republished by mistake
   process.exit(1)
 }
 
@@ -123,8 +140,6 @@ const html = (dropDarkDefaults ? template.replace(/\/\*dark-defaults\*\/[\s\S]*?
   .replace('__UX_REPORT_DATA__', () => json)
 writeFileSync(join(dir, 'index.html'), html)
 
-const files = new Set(Object.keys(shots).map(srcOf))
-for (const p of data.pairs || []) files.add(srcOf(p.before)).add(srcOf(p.after))
-for (const kind of ['open', 'fixed']) for (const f of data[kind] || []) if (f.pin) files.add(srcOf(f.pin.shot))
+const files = new Set([...used.keys()].map(srcOf))
 console.log(`built ${join(dir, 'index.html')}: ${(data.open || []).length} open, ${(data.fixed || []).length} fixed, ${(data.pairs || []).length} pairs, ${files.size} images`)
 console.log('publish files:', JSON.stringify(Object.fromEntries([...files, 'data.json'].map((f) => [f, join(dir, f)]))))

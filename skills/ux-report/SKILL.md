@@ -13,7 +13,7 @@ Turns a UX review (from `ux-review` or from this conversation) into one publishe
 Files next to this SKILL.md:
 - `assets/template.html` — the page. Do not edit it per run.
 - `assets/build.mjs` — validates `data.json` and the images, writes `index.html`, prints the `files` map to publish.
-- `assets/example.data.json` — a complete example of every field.
+- `assets/example.data.json` — a working example of the common fields; §6 lists every field.
 
 ## 1. Find the findings
 
@@ -28,7 +28,7 @@ Each finding becomes one card. Keep the merged report's severity, lenses and bas
 
 A finding is **fixed** only when the change is in the working tree or branch **and** you saw it in the running app after the change (a screenshot or an accessibility-tree check). Otherwise it stays **open**. A fix that only exists in code is open, with `who: "Not verified"`.
 
-`who` marks who acts next on an open item: `"You"` (needs the user, e.g. a dashboard setting), `"Your call"` (a product decision), `"Not started"`.
+`who` marks who acts next on an open item: `"You"` (needs the user, e.g. a dashboard setting), `"Your call"` (a product decision), `"Not started"`, `"Not verified"` (fix in code only), `"Regressed"` (was fixed, flagged again).
 
 ## 3. Screenshots
 
@@ -59,7 +59,7 @@ Without a browser (screenshot-only), estimate from the image and add "Dot positi
 
 ## 5. Take the design from the project
 
-The report wears the reviewed project's design, not this plugin's: its colours, fonts and corner radius go into `data.theme`. Severity colours (P0–P3) and the green "fixed" stay semantic unless the project has its own danger / warning / info / success tokens.
+The report wears the reviewed project's design, not this plugin's: its colours, fonts and corner radius go into `data.theme`. Severity colours (P0–P3) and the green "fixed" stay semantic unless the project has its own danger / warning / info / success tokens. The dots and number circles always keep the template's fixed colours, so their white numbers stay readable.
 
 Where to look, first hit wins per token:
 1. A design doc in the repo: `DESIGN.md`, `PRODUCT.md`, `.impeccable.md`, `docs/design*`, a brand or tokens file (`tokens.json`, `*.tokens.json`).
@@ -95,27 +95,29 @@ Map them to the report's tokens:
 
 ## 6. Write data.json and build
 
-Copy `assets/example.data.json` for the shape. Required: `title`, and each finding's `key`, `title`, plus `sev` + `fix` (open) or `how` (fixed). Everything else is optional and hidden when absent.
+Copy `assets/example.data.json` for the shape and replace every value, theme and `meta` links included. Required: `title`, and each finding's `key`, `title`, plus `sev` + `fix` (open) or `how` (fixed). Everything else is optional and hidden when absent.
 
 | Field | Content |
 |---|---|
-| `title` | 2–4 words, a name: "Acme Checkout Review". Not "UX review: explainer". |
+| `title` | `--title "Name"` from the arguments if given; else 2–4 words, a name: "Acme Checkout Review". Not "UX review: explainer". |
 | `eyebrow` | "UX review · 15 Oct 2026" |
-| `meta` | Strings or `{label, href}` links: branch @ sha, stack, lenses run, previous review link |
+| `meta` | A list of strings or `{label, href}` links (`href` must be `http(s)://`): branch @ sha, stack, lenses run, previous review link |
 | `summary` | Two or three plain sentences: what is open, what is fixed, the main bottleneck |
 | `stats` | Extra count tiles `{value, label, tone: OK\|P0\|P1\|P2\|P3}`, e.g. tests passing. Open/Fixed tiles are added automatically. |
-| `measures` | Before/after table `{title, columns, rows:[{check, before, after, bad}], note}` for measured values (contrast, widths, focus target). Say which "before" values were estimates. |
-| `shots` | `{key: {label, src?}}`. `src` defaults to `shots/<key>.jpg`. |
-| `open[]` | `{key, sev, group, screen, title, finding, fix, laws[], lenses[], basis, who, decide, disagree, pin}` |
+| `measures` | Before/after table `{title, columns, rows:[{check, before, after, bad}], note}` for measured values (contrast, widths, focus target); `bad: true` shows the before value in red. Say which "before" values were estimates. |
+| `shots` | `{key: {label, src?}}`. `src` defaults to `shots/<key>.jpg`; set it only for another format, as `shots/<key>.png` or `.webp`. |
+| `key` | A finding's id: `<group>-<element>` in lowercase with hyphens, e.g. `checkout-coupon-field`. Keep it unchanged across runs; `--update` matches findings by it. |
+| `open[]` | `{key, sev, group, screen, title, finding, fix, laws[], lenses[], basis, who, disagree, pin}` — `screen` is the element or sub-area; `disagree: true` when the report marks "lenses disagree" |
 | `fixed[]` | `{key, sev (was), group, screen, title, finding?, how, laws[], lenses, test, pin}` — `test` is `true` or a label like "E2E test" |
 | `pairs[]` | `{group, title, before, after, note}` — `note` reads "what it was → what it is now" |
 | `theme` | The project's design tokens — see §5 |
-| `verified` | Short chips of what was run: "lint · typecheck", "41/41 E2E" |
-| `unverifiable` | What could not be checked: screen readers, zoom, states not reached |
+| `verified` | A list of short chips of what was run: "lint · typecheck", "41/41 E2E" |
+| `verifiedNote` | One sentence under the chips, e.g. what the E2E run covered |
+| `unverifiable` | A list of what could not be checked: screen readers, zoom, states not reached |
 
 `laws` names the UX law(s) the finding breaks, shown as a chip on the card and in the viewer: "Hick's law", "Fitts's law", "Visibility of system status". Take them from the laws lens's basis for that finding (and any law another lens cites); never invent one for a finding no lens tied to a law. Leave WCAG criteria, Nielsen heuristics and funnel stages in `basis`. Fixed findings keep the law they broke.
 
-`group` is the page or area ("Dashboard", "Sign-up flow"); with more than one group the lists get group filters, and pairs are grouped under it. `lensTotal` (default 5) is the denominator for "Flagged by n/5".
+`group` is the page or area ("Dashboard", "Sign-up flow"); with more than one group the lists get group filters, and pairs are grouped under it. `lensTotal` is the number of lenses that ran (default 5), the denominator for "Flagged by n/5".
 
 Write plainly: titles say what was wrong ("End session ended at once"), `how` says what it does now. No marketing tone.
 
@@ -125,18 +127,22 @@ Build:
 node <skill dir>/assets/build.mjs <work dir>
 ```
 
-It fails on missing images, duplicate keys, missing fields and out-of-range pins; fix `data.json` and rerun. Its last line is the `files` map for the publish.
+It fails on missing images or image paths outside `shots/`, duplicate keys, missing fields, out-of-range pins, a list field given as a string, non-http(s) links, and theme values that are not a CSS colour or length. On failure it deletes `index.html`; fix `data.json` and rerun. Fix every `warn:` line too, or name the ones you left in the summary to the user. The JSON after `publish files:` is the `files` map for the publish.
 
 ## 7. Publish
 
 Use the Artifact tool:
 - **New report:** `file_path: <work dir>/index.html`, `files:` the map the build printed (all images plus `data.json`), `icon: "checklist"`, a one-sentence `description`.
-- **Same conversation, changed data:** rebuild and publish the same `file_path` again; pass only new or changed images in `files`.
+- **Same conversation, changed data:** rebuild and publish the same `file_path` again; pass `data.json` plus only new or changed images in `files`. A stale published `data.json` makes the next `--update` lose these changes.
 - **`--update <url>` (another page, a re-review, a later session):**
-  1. `Artifact read` the url, then `Artifact read` with `path: "data.json"` to get its data. Save it as `<work dir>/data.json`.
-  2. `Artifact list` with `scope: "files"` to see which shots are already published; you only upload new ones. For the build check, copy nothing: run the build with the existing shot files fetched via `Artifact read` `paths`, or fetch them into `shots/`.
-  3. Merge: append the new page's findings under its own `group`; a finding whose `key` is now fixed moves from `open` to `fixed` (same key); add pairs; update `summary`, `eyebrow` date and `stats`.
-  4. Build, then publish with `url`, `file_path: <work dir>/index.html`, and `files` holding `data.json` plus the new images only (published files you leave out are kept).
+  1. `Artifact read` the url, then `Artifact read` with `path: "data.json"` and `out_dir: <work dir>`, so it lands at `<work dir>/data.json`.
+  2. `Artifact list` with `scope: "files"`, then `Artifact read` with `paths` set to every `shots/…` path in that listing and `out_dir: <work dir>`, so they land in `<work dir>/shots/`. The build needs every image the data names.
+  3. Merge by `key`:
+     - A new finding whose key (or element, if an older key was named differently) is already in the report updates that entry in place. Append only findings that are new, under their own `group`.
+     - A key now verified fixed (§2) moves from `open` to `fixed`: add `how`, re-pin it to the after shot, drop `fix` and `who`, and add a pair if the change is visible.
+     - A key in `fixed` that the new review flags again moves back to `open` with `who: "Regressed"`.
+     - Never delete a key to make the build pass. Update `summary`, the `eyebrow` date and `stats`.
+  4. Build, then publish with `url`, `file_path: <work dir>/index.html`, and `files` holding `data.json` plus the new images only: drop the paths fetched in step 2 from the printed map (published files you leave out are kept).
   - An artifact without a `data.json` (made before this skill) cannot be merged automatically. Say so, and offer a new report linked from its `meta`.
 
 Give the user the link and a two-line summary (open count by severity, fixed count). Don't paste the findings into chat; they are on the page.

@@ -1,8 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!-- No doctype, <html>, <head> or <body>: the Artifact host wraps the page in its own skeleton. -->
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>__UX_REPORT_TITLE__</title>
 <!--__UX_REPORT_FONTS__-->
 <style>
@@ -14,7 +11,7 @@
   --p0:#B42318; --p0-bg:#FDE8E6; --p1:#A15C07; --p1-bg:#FCF0DC; --p2:#35607F; --p2-bg:#E3EDF5; --p3:#5F6B66; --p3-bg:#ECEFED;
   --ok:#167947; --ok-bg:#DDEFE3; --shot-bg:#111111;
   --radius:12px; --shadow:0 1px 2px rgb(0 0 0 / .06);
-  --display:system-ui,-apple-system,"Segoe UI",sans-serif; --body:system-ui,-apple-system,"Segoe UI",sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:system-ui,-apple-system,"Segoe UI",sans-serif; --body:system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
 /*dark-defaults*/@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -42,7 +39,6 @@ h2{font-size:22px;color:var(--heading)}
 h3{font-size:16px;font-family:var(--body);font-weight:700;line-height:1.35}
 p{margin:0}
 a{color:var(--accent)}
-.mono{font-family:var(--mono);font-size:12px}
 .eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 header.top{display:grid;gap:10px;padding-bottom:24px;border-bottom:1px solid var(--line)}
 .meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:13px}
@@ -102,16 +98,16 @@ table.mini th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-
 /* before/after pairs */
 .pair-group + .pair-group{margin-top:22px}
 .pair-group > .eyebrow{margin-bottom:10px}
-.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:14px}
+.pairs{display:grid;gap:14px}
 .pair{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:grid;gap:10px;align-content:start;box-shadow:var(--shadow);min-width:0}
 .pair h3{font-size:15px}
 .pair p{font-size:13.5px;color:var(--muted)}
-.pair-shots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pair-shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:12px}
 .pair-shots figure{margin:0;display:grid;gap:4px;min-width:0}
 .pair-shots figcaption{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .pair-shots figcaption.b{color:var(--p0)} .pair-shots figcaption.a{color:var(--ok)}
 .thumb{border:1px solid var(--line);border-radius:8px;background:var(--shot-bg);padding:0;cursor:zoom-in;overflow:hidden;display:block;width:100%}
-.thumb img{display:block;width:100%;height:220px;object-fit:cover;object-position:top center}
+.thumb img{display:block;width:100%;height:auto;max-height:560px;object-fit:cover;object-position:top center}
 
 /* tabs */
 .tabs{display:flex;gap:6px;margin-top:32px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -127,6 +123,7 @@ table.mini th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-
 .stage{position:relative;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--shot-bg);margin:0 auto;width:fit-content;max-width:100%}
 .stage img{display:block;width:auto;max-width:100%;max-height:720px;height:auto}
 .dot{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;border:2px solid #fff;color:#fff;font:700 12px var(--body);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgb(0 0 0 / .35);padding:0}
+/* Fixed colours, not theme tokens: the white numbers must stay readable in every theme. */
 .dot.P0,.num.P0{background:#C8281C}.dot.P1,.num.P1{background:#C06A06}.dot.P2,.num.P2{background:#2F6F9E}.dot.P3,.num.P3{background:#65706B}
 .dot.ok,.num.ok{background:#167947}
 .dot.hot{outline:3px solid var(--accent);outline-offset:2px;z-index:2;transform:translate(-50%,-50%) scale(1.2)}
@@ -146,8 +143,6 @@ dialog img{display:block;max-width:100%;max-height:82vh;margin:0 auto}
 dialog .cap{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;gap:12px}
 @media (prefers-reduced-motion:no-preference){.dot{transition:transform .15s}.chip,.f{transition:background-color .15s,border-color .15s}}
 </style>
-</head>
-<body>
 <div class="wrap">
 <header class="top">
   <div class="eyebrow" id="eyebrow"></div>
@@ -221,9 +216,10 @@ dialog .cap{display:flex;justify-content:space-between;align-items:center;paddin
 
 <script id="report-data" type="application/json">__UX_REPORT_DATA__</script>
 <script>
+document.documentElement.lang||='en';
 const D=JSON.parse(document.getElementById('report-data').textContent);
 const SHOTS=D.shots||{};
-const LENS_TOTAL=D.lensTotal||5;
+const LENS_TOTAL=+D.lensTotal||5;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const srcOf=k=>SHOTS[k]?.src||`shots/${k}.jpg`;
 const labelOf=k=>SHOTS[k]?.label||k;
@@ -245,7 +241,7 @@ if(D.measures&&(D.measures.rows||[]).length){
   $id('measures').hidden=false;
   if(M.title) $id('measures-title').textContent=M.title;
   $id('measures-head').innerHTML=`<tr>${(M.columns||['Check','Before','After']).map(c=>`<th>${esc(c)}</th>`).join('')}</tr>`;
-  $id('measures-body').innerHTML=M.rows.map(r=>`<tr><td>${esc(r.check)}</td><td${r.bad===false?'':' class="err"'}>${esc(r.before)}</td><td>${esc(r.after)}</td></tr>`).join('');
+  $id('measures-body').innerHTML=M.rows.map(r=>`<tr><td>${esc(r.check)}</td><td${r.bad?' class="err"':''}>${esc(r.before)}</td><td>${esc(r.after)}</td></tr>`).join('');
   $id('measures-note').textContent=M.note||'';
 }else $id('grid-top').classList.add('solo');
 
@@ -269,7 +265,8 @@ function setup(kind, items){
     const placed=[];
     for(const f of items.filter(f=>f.shot===cur)){
       let x=Math.min(96,Math.max(4,f.pin.x)), y=Math.min(96,Math.max(4,f.pin.y));
-      while(placed.some(q=>Math.abs(q[0]-x)<2.6&&Math.abs(q[1]-y)<2.6)) x+=3.4;
+      const dx=x>50?-3.4:3.4; // stack toward the middle so no dot leaves the image
+      while(placed.some(q=>Math.abs(q[0]-x)<2.6&&Math.abs(q[1]-y)<2.6)) x+=dx;
       placed.push([x,y]);
       const d=document.createElement('button');
       d.className=`dot ${dotClass(f)}${hot===f.key?' hot':''}`; d.style.left=x+'%'; d.style.top=y+'%';
@@ -305,7 +302,6 @@ function setup(kind, items){
         <span class="num ${dotClass(f)}">${f.n}</span>
         ${fixed?`<span class="badge c-OK">Fixed</span>${f.sev?`<span class="badge c-${f.sev}">was ${f.sev}</span>`:''}`:`<span class="badge c-${f.sev}">${f.sev}</span>`}
         <span class="tag">${esc([f.group,f.screen].filter(Boolean).join(' · '))}</span>
-        ${f.decide?'<span class="decide">Your call</span>':''}
         ${f.who?`<span class="${f.who==='Not started'?'tag':'decide'}">${esc(f.who)}</span>`:''}
         ${f.disagree?'<span class="disagree">Lenses disagree</span>':''}
         ${lawChips(f)}
@@ -332,7 +328,7 @@ $id('tn-open').textContent=nOpen; $id('tn-fixed').textContent=nFixed;
 
 // counts: open, fixed, then any extra stats
 const counts=[];
-if(nOpen||!nFixed) counts.push({value:nOpen,label:'Open issues',tone:nOpen?(D.open.some(f=>f.sev==='P0')?'P0':'P1'):'OK'});
+if(nOpen||!nFixed) counts.push({value:nOpen,label:'Open issues',tone:nOpen?['P0','P1','P2','P3'].find(s=>D.open.some(f=>f.sev===s)):'OK'});
 if(nFixed) counts.push({value:nFixed,label:'Fixed',tone:'OK'});
 counts.push(...(D.stats||[]).map(c=>({...c,tone:['OK','P0','P1','P2','P3'].includes(c.tone)?c.tone:'P3'})));
 $id('counts').innerHTML=counts.map(c=>`<div class="count c-${esc(c.tone||'P3')}"><b>${esc(c.value)}</b><span>${esc(c.label)}</span></div>`).join('');
@@ -397,5 +393,3 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-shot]'); i
 $id('lb-close').addEventListener('click',()=>lb.close());
 lb.addEventListener('click',e=>{if(e.target===lb) lb.close();});
 </script>
-</body>
-</html>

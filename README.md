@@ -59,12 +59,13 @@ claude plugin install ux-review-toolkit
 npx skills add pitis/ux-review-toolkit
 ```
 
-This installs `ux-review`, `ux-laws-auditor`, and `ux-behavior-design` as plain skills. Without the plugin's agents, `ux-review` runs the five lenses sequentially in one context instead of in parallel.
+This installs `ux-review`, `ux-report`, `ux-laws-auditor`, and `ux-behavior-design` as plain skills. Without the plugin's agents, `ux-review` runs the five lenses sequentially in one context instead of in parallel.
 
 ## Requirements
 
 - Live capture needs a browser automation tool in the session — Playwright MCP or Chrome automation. Without one, pass screenshots. If another session holds the browser (`Browser is already in use`), the run falls back to screenshot-only mode and says so.
 - `gh` for PR targets.
+- `ux-report` needs Node and a Claude Code session with Artifacts, which it publishes to.
 - After installing the plugin, **restart Claude Code** before the agents resolve by name; in the same session the orchestrator falls back to `general-purpose` agents reading the definitions, which produces the same reports.
 
 ## Cost
@@ -78,6 +79,7 @@ A full five-lens run on a real screen with source is heavy: roughly 150–250k t
 .claude-plugin/marketplace.json   lets the repo be added as a marketplace
 skills/ux-review/                 orchestrator
 skills/ux-report/                 publishes a review as a tabbed before/after artifact
+                                  (test the build: node --test skills/ux-report/assets/build.test.mjs)
 skills/ux-laws-auditor/           law catalogue + audit protocol
 skills/ux-behavior-design/        behavior-design reference (roadmap.sh/ux-design distillation)
 agents/ux-*-reviewer.md           the five lenses
